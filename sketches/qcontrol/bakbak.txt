@@ -1,0 +1,31 @@
+void sf_set_value(unsigned short value) {
+    sf_v[sf_idx++] = value;
+}
+
+void sf_send_packet() {
+    byte sf_p[32]; 
+    byte v, idx;
+    idx = 0;
+    sf_p[idx++] = 0x12;
+    for( byte i=0; i<sf_idx+1; i++ ){
+        // low byte
+        v = sf_v[i] & 0xFF;
+        if( v==0x12 || v==0x13 || v==0x7D || v==0x10 )
+            sf_p[idx++] = 0x7D;
+        sf_p[idx++] = v;
+
+        // high byte
+        v = (sf_v[i]>>8) & 0xFF;
+        if( v==0x12 || v==0x13 || v==0x7D || v==0x10 )
+            sf_p[idx++] = 0x7D;
+        sf_p[idx++] = v;
+            
+        // separate values
+        if( i<sf_idx )
+            sf_p[idx++] = 0x10;
+    }
+        
+    sf_p[idx++] = 0x13;
+    sf_idx = 0;
+    pc.write( sf_p, idx+1 );
+}  
