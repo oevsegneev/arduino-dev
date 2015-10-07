@@ -1,39 +1,34 @@
 /*
   SerialFlow.h - Communication library with packages of values.
   Created by Oleg Evsegneev, September, 2012.
+  Last update 08.10.2015
   Released into the public domain.
-  Ver 0.2 (for Arduino)
+  Ver 0.5 (for Arduino)
 */
 #ifndef SerialFlow_h
 #define SerialFlow_h
 
 #include "Arduino.h"
-#include <SoftwareSerial.h>
 
-#define MAX_PACKET_SIZE 10
+#include <HardwareSerial.h>
+
+#define MAX_PACKET_SIZE 128
 
 class SerialFlow {
 public:
-    /** Data format */
-    enum DataFormat {
-        SIMPLE     /**< Simple one byte (default) */
-        , COMPLEX  /**< Packet of short-type values */
-    };
-    
-    SerialFlow(int tx, int rx);
+    SerialFlow( HardwareSerial *serial );
 
     /** Set data packet format
      *
-     * @param p_format Format type constant.
      * @param v_length Length of value in bytes.
      * @param p_size Number of values.
      */
-    void setPacketFormat(DataFormat p_format, byte v_length, byte p_size);
+    void setPacketFormat( byte v_length, byte p_size, boolean separate );
 
     /**  Initialize port
      * @param baud_rate Serial port baud rate.    
      */
-    void begin( int baud_rate );
+    void begin( long baud_rate );
 
     /**  Set value to data packet
      *
@@ -54,9 +49,19 @@ public:
      */
     short getPacket( byte idx );
 
+    /**  Serial write
+     * @param v Byte to send.    
+     */
+    void write( byte v );
+
+    /**  Serial read
+     */
+    byte read();
+
 protected:
-    SoftwareSerial _serial;
-    byte _p_format;
+    HardwareSerial *_serial;
+
+    boolean _separate;
     byte _p_size;
     byte _v_length;
 
