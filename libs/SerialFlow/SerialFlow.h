@@ -1,22 +1,30 @@
 /*
   SerialFlow.h - Communication library with packages of values.
   Created by Oleg Evsegneev, September, 2012.
-  Last update 08.10.2015
+  Last update 09.05.2016
   Released into the public domain.
-  Ver 0.5 (for Arduino)
+  Ver 0.7 (for Arduino)
 */
 #ifndef SerialFlow_h
 #define SerialFlow_h
 
 #include "Arduino.h"
 
+#ifdef FastSerial_h
+#include <FastSerial.h>
+#else
 #include <HardwareSerial.h>
+#endif
 
 #define MAX_PACKET_SIZE 128
 
 class SerialFlow {
 public:
+    #ifdef FastSerial_h
+    SerialFlow( FastSerial *serial );
+    #else
     SerialFlow( HardwareSerial *serial );
+    #endif
 
     /** Set data packet format
      *
@@ -34,7 +42,7 @@ public:
      *
      * @param value Value.
      */
-    void setPacketValue(short value);
+    void setPacketValue(uint32_t value);
         
     /**  Send packet to serial port
      */
@@ -47,7 +55,7 @@ public:
     /**  Get received packet
      * @param idx Index of value from packet.    
      */
-    short getPacket( byte idx );
+    uint32_t getPacket( byte idx );
 
     /**  Serial write
      * @param v Byte to send.    
@@ -59,21 +67,28 @@ public:
     byte read();
 
 protected:
+    #ifdef FastSerial_h
+    FastSerial *_serial;
+    #else
     HardwareSerial *_serial;
+    #endif
 
     boolean _separate;
     byte _p_size;
     byte _v_length;
 
-    short _vs[MAX_PACKET_SIZE];
+    uint32_t _vs[MAX_PACKET_SIZE];
     byte _vs_idx;
 
-    short _vr[MAX_PACKET_SIZE];
-    byte _vr_val[2];
+    uint32_t _vr[MAX_PACKET_SIZE];
+    byte _vr_val[4];
     byte _vr_idx;
     byte _cr_idx;
     bool _escape;
     bool _collecting;
+
+
+    uint32_t _join_bytes(byte *bs);
 };
 
 #endif
