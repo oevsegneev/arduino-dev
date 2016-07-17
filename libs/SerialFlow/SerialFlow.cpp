@@ -96,7 +96,7 @@ bool SerialFlow::receivePacket() {
     return 0;
 }
 
-uint32_t SerialFlow::getPacket( byte idx ) {
+uint32_t SerialFlow::getPacketValue( byte idx ) {
     return _vr[idx];
 }
 

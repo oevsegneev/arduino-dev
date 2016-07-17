@@ -16,7 +16,9 @@
 #include <HardwareSerial.h>
 #endif
 
+#ifndef MAX_PACKET_SIZE
 #define MAX_PACKET_SIZE 128
+#endif
 
 class SerialFlow {
 public:
@@ -55,7 +57,7 @@ public:
     /**  Get received packet
      * @param idx Index of value from packet.    
      */
-    uint32_t getPacket( byte idx );
+    uint32_t getPacketValue( byte idx );
 
     /**  Serial write
      * @param v Byte to send.    
