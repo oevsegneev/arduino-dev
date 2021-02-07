@@ -32,7 +32,7 @@ void SerialFlow::begin( uint64_t address1, uint64_t address2 ) {
     _serial->startListening();	
 }
 #else
-void SerialFlow::begin( uint16_t baud_rate ) {
+void SerialFlow::begin( uint32_t baud_rate ) {
     _serial->begin(baud_rate);
 }
 #endif
@@ -126,23 +126,23 @@ uint32_t SerialFlow::getPacketValue( uint8_t idx ) {
 }
 
 void SerialFlow::write( uint8_t v ) {
-	#ifdef __RF24_H__
+    #ifdef __RF24_H__
     _serial->stopListening();
     _serial->write( &v, 1);
     _serial->startListening();	
-	#else
+    #else
     _serial->write(v);
-	#endif
+    #endif
 }
 
 uint8_t SerialFlow::read() {
-	#ifdef __RF24_H__
-	uint8_t v;
-	_serial->read( &v, 1 );
-	return v;
-	#else
+    #ifdef __RF24_H__
+    uint8_t v;
+    _serial->read( &v, 1 );
+    return v;
+    #else
     return _serial->read();
-	#endif
+    #endif
 }
 
 uint32_t SerialFlow::_join_bytes(uint8_t *bs) {

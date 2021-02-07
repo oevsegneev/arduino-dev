@@ -28,9 +28,9 @@ public:
     #if defined FastSerial_h
     SerialFlow( FastSerial *serial );
     #elif defined __RF24_H__
-	SerialFlow( uint8_t cn, uint8_t csn );
-	#else
-	SerialFlow( HardwareSerial *serial );
+    SerialFlow( uint8_t cn, uint8_t csn );
+    #else
+    SerialFlow( HardwareSerial *serial );
     #endif
 
     /** Set data packet format
@@ -46,10 +46,10 @@ public:
      * @param baud_rate Serial port baud rate.    
      */
     #ifdef __RF24_H__
-	void begin( uint64_t address1, uint64_t address2 );
-	#else
-    void begin( uint16_t baud_rate );
-	#endif
+    void begin( uint64_t address1, uint64_t address2 );
+    #else
+    void begin( uint32_t baud_rate );
+    #endif
 
     /**  Set value to data packet
      *
@@ -85,7 +85,7 @@ protected:
     #ifdef FastSerial_h
     FastSerial *_serial;
     #elif defined __RF24_H__
-	RF24 *_serial;
+    RF24 *_serial;
     #else
     HardwareSerial *_serial;
     #endif
