@@ -1,12 +1,9 @@
-SerialFlow library for Arduino
+Библиотека SerialFlow для Arduino IDE
 
-Uses to transmit packed data.
+Используется для обмена данными, сгруппированными в пакет и с проверкой целостности CRC8.
 
-You need to uncomment one of the #include directives in SerialFlow.h file in order to use nrf24 radio or FastSerial library.
+Для переключения между интерфейсами следует раскомментировать нужную строку. Пример:
 
-For example:
-// uncomment desired library
 //#include <FastSerial.h>
 //#include <RF24.h>
-
 #include <HardwareSerial.h>

@@ -1,23 +1,25 @@
 /*
-  SerialFlow.h - Communication library with packages of values.
-  Created by Oleg Evsegneev, September, 2012.
-  Last update 13.11.2016
-  Released into the public domain.
-  Ver 0.8 (for Arduino)
+  SerialFlow.cpp - Библиотека для пакетного обмена по последовательному порту
+  Автор Олег Евсегнеев, 11.09.2012
+  Последнее обновление 23.04.2026
+  Лицензия MIT
 */
 #ifndef SerialFlow_h
 #define SerialFlow_h
 
 #include "Arduino.h"
 
-// uncomment desired library
+// раскомментируй нужное
 //#include <FastSerial.h>
 //#include <RF24.h>
 #include <HardwareSerial.h>
 
 #define MAX_PACKET_SIZE 8
+#define CRC8_POLYNOMIAL 0x07
+#define ENABLE_CRC
 
-#if defined __RF24_H__
+#if defined RF24_H_
+#define RF24_CHANNEL 2
 #define RF24_REPEAT_COUNT 1
 #define RF24_REPEAT_DELAY 15
 #define RF24_PAYLOAD 1
@@ -27,55 +29,61 @@ class SerialFlow {
 public:
     #if defined FastSerial_h
     SerialFlow( FastSerial *serial );
-    #elif defined __RF24_H__
+    #elif defined RF24_H_
     SerialFlow( uint8_t cn, uint8_t csn );
     #else
     SerialFlow( HardwareSerial *serial );
     #endif
 
-    /** Set data packet format
+    /** Настройка формата пакета
      *
-     * @param v_length Length of value in bytes.
-     * @param p_size Number of values.
-     * @param separate Flag to separate values by 0x10 char (optional).
+     * @param v_length - длина значения в байтах
+     * @param p_size - количество значений
      */
-    void setPacketFormat( uint8_t v_length, uint8_t p_size, boolean separate );
     void setPacketFormat( uint8_t v_length, uint8_t p_size );
 
-    /**  Initialize port
-     * @param baud_rate Serial port baud rate.    
+    /**  Инициализация порта
+     * @param baud_rate - скорость порта    
+     * @param address1 - адрес передачтика    
+     * @param address2 - адрес приёмника 
      */
-    #ifdef __RF24_H__
-    void begin( uint64_t address1, uint64_t address2 );
+    #ifdef RF24_H_
+    void begin( uint64_t address1, uint64_t address2, uint8_t channel = RF24_CHANNEL, rf24_datarate_e baud = RF24_250KBPS );
     #else
     void begin( uint32_t baud_rate );
     #endif
 
-    /**  Set value to data packet
+    /**  Установка значения в пакет
      *
-     * @param value Value.
+     * @param value - значение
      */
     void setPacketValue(uint32_t value);
         
-    /**  Send packet to serial port
+    /**  Отправка пакета
      */
     void sendPacket();
 
-    /**  Receive packet from serial port
+    /**  Получение пакета
      */
     bool receivePacket();
 
-    /**  Get received packet
-     * @param idx Index of value from packet.    
+    /**  Извлечение значения из пакета
+     * @param idx - индекс значения в пакете    
      */
     uint32_t getPacketValue( uint8_t idx );
 
-    /**  Serial write
-     * @param v Byte to send.    
+    /**  Передача байта
+     * @param v - отправляемый байт
      */
     void write( uint8_t v );
+    
+    /**  Передача массива байт
+     * @param *v - отправляемый массив
+     * @param length - размер массива
+     */
+    void write( uint8_t *v, uint8_t length );
 
-    /**  Serial read
+    /**  Приём байта
      */
     uint8_t read();
 
@@ -84,13 +92,12 @@ public:
 protected:
     #ifdef FastSerial_h
     FastSerial *_serial;
-    #elif defined __RF24_H__
+    #elif defined RF24_H_
     RF24 *_serial;
     #else
     HardwareSerial *_serial;
     #endif
 
-    boolean _separate;
     uint8_t _p_size;
     uint8_t _v_length;
 
@@ -101,11 +108,19 @@ protected:
     uint8_t _vr_val[4];
     uint8_t _vr_idx;
     uint8_t _cr_idx;
+    uint8_t _vr_ready;
     bool _escape;
     bool _collecting;
 
+    #ifdef ENABLE_CRC
+    uint8_t _payload_crc[MAX_PACKET_SIZE*4*2];
+    uint8_t _payload_idx = 0;
+    uint8_t _crc;
+    uint8_t _crc_ready = 0;
+    #endif
 
-    uint32_t _join_bytes(uint8_t *bs);
+    static uint32_t _join_bytes(uint8_t *bs, uint8_t length);
+    static uint8_t _crc8(uint8_t *data, uint8_t length);
 };
 
 #endif
